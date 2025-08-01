@@ -6,8 +6,6 @@ An interactive web-based application to place defect stickers (transparent PNGs)
 
 ![Demo](https://raw.githubusercontent.com/Akash-Kadali/Defect-Augmentation-Tool/main/frontend/static/assets/defect_augmentation_tool.png)
 
-![Sentiment](https://raw.githubusercontent.com/Akash-Kadali/Cloud-Based-NLP-Model-for-Automated-Document-Summarization/main/static/1.png)
-
 
 
 ---
