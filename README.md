@@ -2,6 +2,11 @@
 
 An interactive web-based application to place defect stickers (transparent PNGs) on perfect laser die images. Designed for large-scale, automated augmentation of defect datasets while maintaining full visual control.
 
+### 🔹 Snapshot
+
+![Demo](https://raw.githubusercontent.com/Akash-Kadali/Defect-Augmentation-Tool/blob/main/frontend/static/assets/defect_augmentation_tool.png)
+
+
 ---
 
 ## 📁 Dataset Structure
