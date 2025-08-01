@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Defect Placement Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/fabric.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <header>
+    <h1>🎯 Defect Placement Tool</h1>
+  </header>
+
+  <main>
+    <div id="controls">
+
+      <div class="control-group">
+        <label for="colorSelector">Color:</label>
+        <select id="colorSelector" onchange="onColorChange(this.value)">
+          {% for c in colors %}
+            <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="control-group">
+        <button id="saveBtn" title="Save all 45 defects (Ctrl+S)">💾 Save</button>
+        <button id="resetDefect" title="Reset positions">🔄 Reset</button>
+        <button id="downloadBtn" title="Download preview">⬇️ Preview</button>
+        <button onclick="showHelp()" title="Show shortcuts">❔ Help</button>
+      </div>
+
+      <div class="control-group">
+        <label for="rotateSlider">Rotate:</label>
+        <input type="range" id="rotateSlider" min="0" max="360" value="0">
+      </div>
+
+      <div class="control-group">
+        <button id="refreshPerfectBtn" title="Change background image">♻️ New Background</button>
+      </div>
+
+      <div class="control-group">
+        <label for="scaleSlider">Scale:</label>
+        <input type="range" id="scaleSlider" min="0.1" max="2" step="0.01" value="0.5">
+      </div>
+
+      <div class="control-group">
+        <label for="spacingSlider">Spacing Y:</label>
+        <input type="range" id="spacingSlider" min="5" max="100" step="1" value="30">
+      </div>
+
+      <div class="control-group">
+        <button onclick="skip('prev')" title="Previous Defect">⏮ Prev</button>
+        <button onclick="skip('next')" title="Next Defect">⏭ Next</button>
+      </div>
+
+      <div class="control-group" id="statusPanel">
+        <span id="placementStatus">Placing 1/45</span><br>
+        <small>Zoom: <span id="zoomIndicator">100%</span></small>
+      </div>
+
+      <div class="control-group">
+        <label>Sticker Preview:</label>
+        <img id="previewDefectImg" alt="Sticker" width="80" height="80" />
+      </div>
+
+      <div class="control-group" id="doneStatus" style="display:none; color:green; font-weight:bold;">
+        ✅ Defect Completed
+      </div>
+
+
+      <div class="control-group" style="width: 100%; max-width: 480px;">
+        <label>Overall Progress:</label>
+        <div style="background: #eee; border-radius: 8px; overflow: hidden; height: 14px;">
+          <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #1f4961, #5a8eb5); transition: width 0.4s;"></div>
+        </div>
+        <small><span id="progressLabel">0 / 0 (0%)</span></small>
+      </div>
+
+    </div>
+
+    <div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px;">
+      <div id="canvas-container">
+        <canvas id="c" role="img" aria-label="Canvas for placing defects"></canvas>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <label>Original Defect Image</label>
+        <img id="originalDefectImg" alt="Original Defect" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" />
+      </div>
+    </div>
+
+    <footer>
+      <hr />
+      <p><strong>Keyboard Shortcuts</strong>:</p>
+      <ul style="font-size: 0.95em; line-height: 1.4">
+        <li><code>[ / ]</code> — Adjust spacing</li>
+        <li><code>← ↑ ↓ →</code> — Move defects</li>
+        <li><code>+</code>/<code>-</code> — Scale</li>
+        <li><code>R / L</code> — Rotate</li>
+        <li><code>0</code> — Reset</li>
+        <li><code>Ctrl+S</code> — Save all 45</li>
+        <li><code>Ctrl+D</code> — Download preview</li>
+        <li>🗑️ Double-click to delete a defect</li>
+      </ul>
+      <p style="font-size: 0.85em; color: #666;">
+        45 identical defects are vertically placed.<br>
+        Use keys 1 to 5 to control 9 at a time.
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    function onColorChange(color) {
+      fetch(`/init/${color}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            loadNextPair();
+            updateProgressBar(color);
+          } else {
+            alert(data.message);
+          }
+        });
+    }
+
+    function updateProgressBar(color) {
+      fetch(`/progress/${color}`)
+        .then(res => res.json())
+        .then(data => {
+          const { current, total } = data;
+          const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+          document.getElementById('progressBar').style.width = `${percent}%`;
+          document.getElementById('progressLabel').textContent = `${current} / ${total} (${percent}%)`;
+        });
+    }
+
+    function showHelp() {
+      alert(`💡 Keyboard Shortcuts:
+[ or ]: Adjust spacing
+Ctrl + S: Save 45 outputs
+← ↑ ↓ →: Move current batch
++ / -: Scale batch
+R / L: Rotate batch
+0: Reset position
+Double-click: Delete instance`);
+    }
+  </script>
+</body>
+</html>
